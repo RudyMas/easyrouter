@@ -8,7 +8,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.3.0
+ * @version     0.3.1
  */
 class EasyRouter
 {
@@ -130,11 +130,11 @@ class EasyRouter
                     if ($x == count($testRoute) - 1) {
                         $functio2Execute = explode(':', $value['action']);
                         if (count($functio2Execute) == 2) {
-                            $action = '\\Controller\\'.$functio2Execute[0];
+                            $action = '\\Controller\\'.$functio2Execute[0].'Controller';
                             $controller = new $action(NULL);
-                            $controller->{$functio2Execute[1]}($variables, $this->body);
+                            $controller->{$functio2Execute[1].'Action'}($variables, $this->body);
                         } else {
-                            $action = '\\Controller\\'.$functio2Execute[0];
+                            $action = '\\Controller\\'.$functio2Execute[0].'Controller';
                             new $action($variables, $this->body);
                         }
                         return TRUE;
