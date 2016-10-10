@@ -8,7 +8,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.3.1
+ * @version     0.3.2
  */
 class EasyRouter
 {
@@ -124,7 +124,7 @@ class EasyRouter
                     if (preg_match("/^{(.+)}$/", $testRoute[$x])) {
                         $key = trim($testRoute[$x], '{}');
                         $variables[$key] = $this->parameters[$x];
-                    } elseif ($testRoute[$x] != $this->parameters[$x]) {
+                    } elseif ((($x != 0) ? strtolower($testRoute[$x]) : $testRoute[$x]) != $this->parameters[$x]) {
                         break 1;
                     }
                     if ($x == count($testRoute) - 1) {
