@@ -8,7 +8,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.5.0
+ * @version     0.3.0
  */
 class EasyRouter
 {
