@@ -1,5 +1,6 @@
 <?php
 namespace RudyMas\Router;
+
 use Exception;
 
 /**
@@ -8,7 +9,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.3.2
+ * @version     0.3.7
  */
 class EasyRouter
 {
@@ -47,8 +48,8 @@ class EasyRouter
     public function processURL()
     {
         $requestURI = explode('/', strtolower($_SERVER['REQUEST_URI']));
-        $scriptName = explode('/', strtolower($_SERVER['SCRIPT_NAME']));
         $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
+        $scriptName = explode('/', strtolower($_SERVER['SCRIPT_NAME']));
         for ($x = 0; $x < sizeof($scriptName); $x++) {
             if ($requestURI[$x] == $scriptName[$x]) {
                 unset($requestURI[$x]);
@@ -70,39 +71,20 @@ class EasyRouter
      * function addRoute($route, $action)
      * This will add a route to the system
      *
-     * @param   string  $method     The method of the request (GET/PUT/POST/...)
-     * @param   string  $route      A route for the system (/blog/page/1)
-     * @param   string  $action     The action script that has to be used
+     * @param   string $method The method of the request (GET/PUT/POST/...)
+     * @param   string $route A route for the system (/blog/page/1)
+     * @param   string $action The action script that has to be used
      * @return  boolean             Returns FALSE if route already exists, TRUE if it is added
      */
-    public function addRoute($method, $route, $action = NULL)
+    public function addRoute($method, $route, $action)
     {
         $route = strtoupper($method) . '/' . trim($route, '/');
-        if (in_array($route, $this->routes)) {
+        if ($this->isRouteSet($route)) {
             return FALSE;
         } else {
             $this->routes[] = array('route' => $route, 'action' => $action);
             return TRUE;
         }
-    }
-
-    /**
-     * function isRouteSet($route)
-     * This will test if a route already exists and returns TRUE is it is set, FALSE if it isn't set
-     *
-     * @param   string  $method The method of the request (GET/PUT/POST/...)
-     * @param   string  $route  The route to be tested
-     * @return  boolean         Returns TRUE if it is set, FALSE if it isn't set
-     */
-    public function isRouteSet($method, $route)
-    {
-        $route = strtoupper($method) . '/' . trim($route, '/');
-        foreach ($this->routes as $checkRoute) {
-            if ($route == $checkRoute['route']) {
-                return TRUE;
-            }
-        }
-        return FALSE;
     }
 
     /**
@@ -118,31 +100,74 @@ class EasyRouter
         $this->processBody();
         $variables = [];
         foreach ($this->routes as $value) {
-            $testRoute = explode('/', $value['route']);
-            if (count($this->parameters) == count($testRoute)) {
-                for ($x = 0; $x < count($testRoute); $x++) {
-                    if (preg_match("/^{(.+)}$/", $testRoute[$x])) {
-                        $key = trim($testRoute[$x], '{}');
-                        $variables[$key] = $this->parameters[$x];
-                    } elseif ((($x != 0) ? strtolower($testRoute[$x]) : $testRoute[$x]) != $this->parameters[$x]) {
-                        break 1;
+            $testRoute = $this->formatTheRoute(explode('/', $value['route']));
+            if (! (count($this->parameters) == count($testRoute))) {
+                continue;
+            }
+            for ($x = 0; $x < count($testRoute); $x++) {
+                if ($this->isItAVariable($testRoute[$x])) {
+                    $key = trim($testRoute[$x], '{}');
+                    $variables[$key] = $this->parameters[$x];
+                } elseif ($testRoute[$x] != $this->parameters[$x]) {
+                    break 1;
+                }
+                if ($x == count($testRoute) - 1) {
+                    $function2Execute = explode(':', $value['action']);
+                    if (count($function2Execute) == 2) {
+                        $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
+                        $controller = new $action(NULL);
+                        $controller->{$function2Execute[1] . 'Action'}($variables, $this->body);
+                    } else {
+                        $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
+                        new $action($variables, $this->body);
                     }
-                    if ($x == count($testRoute) - 1) {
-                        $functio2Execute = explode(':', $value['action']);
-                        if (count($functio2Execute) == 2) {
-                            $action = '\\Controller\\'.$functio2Execute[0].'Controller';
-                            $controller = new $action(NULL);
-                            $controller->{$functio2Execute[1].'Action'}($variables, $this->body);
-                        } else {
-                            $action = '\\Controller\\'.$functio2Execute[0].'Controller';
-                            new $action($variables, $this->body);
-                        }
-                        return TRUE;
-                    }
+                    return TRUE;
                 }
             }
         }
         throw new Exception('Page couldn\'t be found!', 404);
+    }
+
+    /**
+     * function isRouteSet($route)
+     * This will test if a route already exists and returns TRUE if it is set, FALSE if it isn't set
+     *
+     * @param   string $newRoute        The method of the request (GET/PUT/POST/...)
+     * @return  boolean                 Returns TRUE if it is set, FALSE if it isn't set
+     */
+    private function isRouteSet($newRoute)
+    {
+        return in_array($newRoute, $this->routes);
+    }
+
+    /**
+     * function formatTheRoute($routeArray)
+     * Formatting the route to the proper uppercase and lowercase routes
+     *
+     * @param array $routeArray
+     * @return array
+     */
+    private function formatTheRoute($routeArray)
+    {
+        for ($x = 0; $x < count($routeArray); $x++) {
+            if ($x == 0) {
+                $routeArray[$x] = strtoupper($routeArray[$x]);
+            } elseif (! $this->isItAVariable($routeArray[$x])) {
+                $routeArray[$x] = strtolower($routeArray[$x]);
+            }
+        }
+        return $routeArray;
+    }
+
+    /**
+     * function isItAVariable($input)
+     * Checks if this part of the route is a variable
+     *
+     * @param $input
+     * @return boolean  Return TRUE is a variable, FALSE if not
+     */
+    private function isItAVariable($input) {
+        return preg_match("/^{(.+)}$/", $input);
     }
 
     /**
