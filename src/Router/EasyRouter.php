@@ -4,12 +4,14 @@ namespace RudyMas\Router;
 use Exception;
 
 /**
- * Class Router - This class is used to process clean URL's (http://<website>/arg1/arg2)
+ * Class EasyRouter
+ * This class is used to process clean URL's (http://<website>/arg1/arg2)
+ * and add routing capabilities to it.
  *
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.3.7
+ * @version     0.3.11
  */
 class EasyRouter
 {
@@ -47,7 +49,7 @@ class EasyRouter
      */
     public function processURL()
     {
-        $requestURI = explode('/', strtolower($_SERVER['REQUEST_URI']));
+        $requestURI = explode('/', trim(strtolower(urldecode($_SERVER['REQUEST_URI'])), '/'));
         $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
         $scriptName = explode('/', strtolower($_SERVER['SCRIPT_NAME']));
         for ($x = 0; $x < sizeof($scriptName); $x++) {
