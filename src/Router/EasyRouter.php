@@ -11,7 +11,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.3.11
+ * @version     0.4.1
  */
 class EasyRouter
 {
@@ -40,6 +40,8 @@ class EasyRouter
      * This contains all the routes of the website
      * $routes[n]['route'] = the route to check against
      * $routes[n]['action'] = the controller to load
+     * $routes[n]['argument'] = the argument(s) which you pass to the controller
+     *                          this can be a string or array
      */
     private $routes = [];
 
@@ -73,18 +75,19 @@ class EasyRouter
      * function addRoute($route, $action)
      * This will add a route to the system
      *
-     * @param   string $method The method of the request (GET/PUT/POST/...)
-     * @param   string $route A route for the system (/blog/page/1)
-     * @param   string $action The action script that has to be used
-     * @return  boolean             Returns FALSE if route already exists, TRUE if it is added
+     * @param   string          $method The method of the request (GET/PUT/POST/...)
+     * @param   string          $route  A route for the system (/blog/page/1)
+     * @param   string          $action The action script that has to be used
+     * @param   string|array    $args   The arguments to pass to the controller
+     * @return  boolean                 Returns FALSE if route already exists, TRUE if it is added
      */
-    public function addRoute($method, $route, $action)
+    public function addRoute($method, $route, $action, $args = NULL)
     {
         $route = strtoupper($method) . '/' . trim($route, '/');
         if ($this->isRouteSet($route)) {
             return FALSE;
         } else {
-            $this->routes[] = array('route' => $route, 'action' => $action);
+            $this->routes[] = array('route' => $route, 'action' => $action, 'args' => $args);
             return TRUE;
         }
     }
@@ -117,11 +120,11 @@ class EasyRouter
                     $function2Execute = explode(':', $value['action']);
                     if (count($function2Execute) == 2) {
                         $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
-                        $controller = new $action(NULL);
+                        $controller = new $action($value['args']);
                         $controller->{$function2Execute[1] . 'Action'}($variables, $this->body);
                     } else {
                         $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
-                        new $action($variables, $this->body);
+                        new $action($variables, $this->body, $value['args']);
                     }
                     return TRUE;
                 }
