@@ -11,7 +11,8 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.4.1
+ * @version     0.4.2
+ * @package     RudyMas\Router
  */
 class EasyRouter
 {
@@ -51,7 +52,7 @@ class EasyRouter
      */
     public function processURL()
     {
-        $requestURI = explode('/', trim(strtolower(urldecode($_SERVER['REQUEST_URI'])), '/'));
+        $requestURI = explode('/', rtrim(strtolower(urldecode($_SERVER['REQUEST_URI'])), '/'));
         $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
         $scriptName = explode('/', strtolower($_SERVER['SCRIPT_NAME']));
         for ($x = 0; $x < sizeof($scriptName); $x++) {
@@ -171,7 +172,8 @@ class EasyRouter
      * @param $input
      * @return boolean  Return TRUE is a variable, FALSE if not
      */
-    private function isItAVariable($input) {
+    private function isItAVariable($input)
+    {
         return preg_match("/^{(.+)}$/", $input);
     }
 
