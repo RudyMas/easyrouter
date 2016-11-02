@@ -3,3 +3,11 @@
 
 # Dreamweaver
 _notes/
+
+# Managed by Composer
+*/vendor/*
+*/composer.lock
+*/composer.phar
+
+# REACT
+*/node_modules/*
