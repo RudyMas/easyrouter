@@ -42,7 +42,7 @@ class EasyRouter
      * $routes[n]['route'] = the route to check against
      * $routes[n]['action'] = the controller to load
      * $routes[n]['argument'] = the argument(s) which you pass to the controller
-     *                          this can be a string or array
+     *                          this can be a string or an array
      */
     private $routes = [];
 
@@ -76,11 +76,11 @@ class EasyRouter
      * function addRoute($route, $action)
      * This will add a route to the system
      *
-     * @param   string          $method The method of the request (GET/PUT/POST/...)
-     * @param   string          $route  A route for the system (/blog/page/1)
-     * @param   string          $action The action script that has to be used
-     * @param   string|array    $args   The arguments to pass to the controller
-     * @return  boolean                 Returns FALSE if route already exists, TRUE if it is added
+     * @param string $method The method of the request (GET/PUT/POST/...)
+     * @param string $route A route for the system (/blog/page/1)
+     * @param string $action The action script that has to be used
+     * @param string|array $args The arguments to pass to the controller
+     * @return boolean Returns FALSE if route already exists, TRUE if it is added
      */
     public function addRoute($method, $route, $action, $args = NULL)
     {
@@ -97,8 +97,8 @@ class EasyRouter
      * function execute()
      * This will process the URL and execute the controller and action when the URL is a correct route
      *
-     * @throws Exception    Will throw an exception when the route isn't configured (Error Code 404)
-     * @return boolean      Returns TRUE if page has been found
+     * @throws Exception Will throw an exception when the route isn't configured (Error Code 404)
+     * @return boolean Returns TRUE if page has been found
      */
     public function execute()
     {
@@ -107,7 +107,7 @@ class EasyRouter
         $variables = [];
         foreach ($this->routes as $value) {
             $testRoute = $this->formatTheRoute(explode('/', $value['route']));
-            if (! (count($this->parameters) == count($testRoute))) {
+            if (!(count($this->parameters) == count($testRoute))) {
                 continue;
             }
             for ($x = 0; $x < count($testRoute); $x++) {
@@ -138,8 +138,8 @@ class EasyRouter
      * function isRouteSet($route)
      * This will test if a route already exists and returns TRUE if it is set, FALSE if it isn't set
      *
-     * @param   string $newRoute        The method of the request (GET/PUT/POST/...)
-     * @return  boolean                 Returns TRUE if it is set, FALSE if it isn't set
+     * @param string $newRoute The method of the request (GET/PUT/POST/...)
+     * @return boolean Returns TRUE if it is set, FALSE if it isn't set
      */
     private function isRouteSet($newRoute)
     {
@@ -150,15 +150,15 @@ class EasyRouter
      * function formatTheRoute($routeArray)
      * Formatting the route to the proper uppercase and lowercase routes
      *
-     * @param array $routeArray
-     * @return array
+     * @param array $routeArray An array of the route to process
+     * @return array Returns the formatted route
      */
     private function formatTheRoute($routeArray)
     {
         for ($x = 0; $x < count($routeArray); $x++) {
             if ($x == 0) {
                 $routeArray[$x] = strtoupper($routeArray[$x]);
-            } elseif (! $this->isItAVariable($routeArray[$x])) {
+            } elseif (!$this->isItAVariable($routeArray[$x])) {
                 $routeArray[$x] = strtolower($routeArray[$x]);
             }
         }
@@ -169,8 +169,8 @@ class EasyRouter
      * function isItAVariable($input)
      * Checks if this part of the route is a variable
      *
-     * @param $input
-     * @return boolean  Return TRUE is a variable, FALSE if not
+     * @param string $input Check if the this part of the route is a variable
+     * @return boolean Return TRUE is a variable, FALSE if not
      */
     private function isItAVariable($input)
     {
@@ -180,7 +180,7 @@ class EasyRouter
     /**
      * Getter for $parameters
      *
-     * @return   array   Returns an array of the parameters
+     * @return array Returns an array of the parameters
      */
     public function getParameters()
     {
@@ -190,7 +190,7 @@ class EasyRouter
     /**
      * Getter for $body
      *
-     * @return  mixed   Returns the body of the request
+     * @return mixed Returns the body of the request
      */
     public function getBody()
     {
