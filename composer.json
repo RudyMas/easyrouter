@@ -1,21 +1,23 @@
 {
-    "name": "rudymas/router",
-    "description": "An easy way to process clean URLs with added routing options",
-    "type": "library",
-    "license": "GPL-3.0",
-    "authors": [
-        {
-            "name": "Rudy Mas",
-            "email": "rudy.mas@rudymas.be"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {
-		"php": ">= 5.4.0 || >= 7.0"
-	},
-	"autoload": {
-		"psr-4": {
-			"RudyMas\\Router\\": "src/"
-		}
-	}
+  "name": "rudymas/router",
+  "description": "An easy way to process clean URLs with added routing options",
+  "type": "library",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Rudy Mas",
+      "email": "rudy.mas@rudymas.be",
+      "homepage": "http://www.rudymas.be",
+      "role": "Developer"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">= 5.4.0 || >= 7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "RudyMas\\Router\\": "src/"
+    }
+  }
 }

@@ -5,13 +5,13 @@ use Exception;
 
 /**
  * Class EasyRouter
- * This class is used to process clean URL's (http://<website>/arg1/arg2)
- * and add routing capabilities to it.
+ * This class can be used to process clean URLs (http://<website>/arg1/arg2)
+ * and process it according to the configured routes.
  *
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.4.2
+ * @version     0.5.0
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -52,11 +52,11 @@ class EasyRouter
      */
     public function processURL()
     {
-        $requestURI = explode('/', rtrim(strtolower(urldecode($_SERVER['REQUEST_URI'])), '/'));
+        $requestURI = explode('/', rtrim(urldecode($_SERVER['REQUEST_URI']), '/'));
         $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
-        $scriptName = explode('/', strtolower($_SERVER['SCRIPT_NAME']));
-        for ($x = 0; $x < sizeof($scriptName); $x++) {
-            if ($requestURI[$x] == $scriptName[$x]) {
+        $scriptName = explode('/', $_SERVER['SCRIPT_NAME']);
+        for ($x = 0; $x < sizeof($requestURI); $x++) {
+            if (strtolower($requestURI[$x]) == strtolower($scriptName[$x])) {
                 unset($requestURI[$x]);
             }
         }
@@ -76,15 +76,15 @@ class EasyRouter
      * function addRoute($route, $action)
      * This will add a route to the system
      *
-     * @param   string          $method The method of the request (GET/PUT/POST/...)
-     * @param   string          $route  A route for the system (/blog/page/1)
-     * @param   string          $action The action script that has to be used
-     * @param   string|array    $args   The arguments to pass to the controller
-     * @return  boolean                 Returns FALSE if route already exists, TRUE if it is added
+     * @param string $method The method of the request (GET/PUT/POST/...)
+     * @param string $route A route for the system (/blog/page/1)
+     * @param string $action The action script that has to be used
+     * @param string|array $args The arguments to pass to the controller
+     * @return boolean Returns FALSE if route already exists, TRUE if it is added
      */
     public function addRoute($method, $route, $action, $args = NULL)
     {
-        $route = strtoupper($method) . '/' . trim($route, '/');
+        $route = strtoupper($method) . rtrim($route, '/');
         if ($this->isRouteSet($route)) {
             return FALSE;
         } else {
@@ -97,8 +97,8 @@ class EasyRouter
      * function execute()
      * This will process the URL and execute the controller and action when the URL is a correct route
      *
-     * @throws Exception    Will throw an exception when the route isn't configured (Error Code 404)
-     * @return boolean      Returns TRUE if page has been found
+     * @throws Exception Will throw an exception when the route isn't configured (Error Code 404)
+     * @return boolean Returns TRUE if page has been found
      */
     public function execute()
     {
@@ -106,15 +106,15 @@ class EasyRouter
         $this->processBody();
         $variables = [];
         foreach ($this->routes as $value) {
-            $testRoute = $this->formatTheRoute(explode('/', $value['route']));
-            if (! (count($this->parameters) == count($testRoute))) {
+            $testRoute = explode('/', $value['route']);
+            if (!(count($this->parameters) == count($testRoute))) {
                 continue;
             }
             for ($x = 0; $x < count($testRoute); $x++) {
                 if ($this->isItAVariable($testRoute[$x])) {
                     $key = trim($testRoute[$x], '{}');
                     $variables[$key] = $this->parameters[$x];
-                } elseif ($testRoute[$x] != $this->parameters[$x]) {
+                } elseif (strtolower($testRoute[$x]) != strtolower($this->parameters[$x])) {
                     break 1;
                 }
                 if ($x == count($testRoute) - 1) {
@@ -138,8 +138,8 @@ class EasyRouter
      * function isRouteSet($route)
      * This will test if a route already exists and returns TRUE if it is set, FALSE if it isn't set
      *
-     * @param   string $newRoute        The method of the request (GET/PUT/POST/...)
-     * @return  boolean                 Returns TRUE if it is set, FALSE if it isn't set
+     * @param string $newRoute The new route to be tested
+     * @return boolean Returns TRUE if it is set, FALSE if it isn't set
      */
     private function isRouteSet($newRoute)
     {
@@ -147,30 +147,11 @@ class EasyRouter
     }
 
     /**
-     * function formatTheRoute($routeArray)
-     * Formatting the route to the proper uppercase and lowercase routes
-     *
-     * @param array $routeArray
-     * @return array
-     */
-    private function formatTheRoute($routeArray)
-    {
-        for ($x = 0; $x < count($routeArray); $x++) {
-            if ($x == 0) {
-                $routeArray[$x] = strtoupper($routeArray[$x]);
-            } elseif (! $this->isItAVariable($routeArray[$x])) {
-                $routeArray[$x] = strtolower($routeArray[$x]);
-            }
-        }
-        return $routeArray;
-    }
-
-    /**
      * function isItAVariable($input)
      * Checks if this part of the route is a variable
      *
-     * @param $input
-     * @return boolean  Return TRUE is a variable, FALSE if not
+     * @param string $input Part of the route to be tested
+     * @return boolean Return TRUE is a variable, FALSE if not
      */
     private function isItAVariable($input)
     {
@@ -180,7 +161,7 @@ class EasyRouter
     /**
      * Getter for $parameters
      *
-     * @return   array   Returns an array of the parameters
+     * @return array Returns an array of the parameters
      */
     public function getParameters()
     {
@@ -190,7 +171,7 @@ class EasyRouter
     /**
      * Getter for $body
      *
-     * @return  mixed   Returns the body of the request
+     * @return mixed Returns the body of the request
      */
     public function getBody()
     {
