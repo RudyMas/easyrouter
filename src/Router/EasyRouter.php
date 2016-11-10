@@ -42,7 +42,7 @@ class EasyRouter
      * $routes[n]['route'] = the route to check against
      * $routes[n]['action'] = the controller to load
      * $routes[n]['argument'] = the argument(s) which you pass to the controller
-     *                          this can be a string or array
+     *                          this can be a string or an array
      */
     private $routes = [];
 
