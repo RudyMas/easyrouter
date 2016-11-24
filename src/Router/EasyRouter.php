@@ -11,7 +11,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.5.0
+ * @version     0.5.1
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -55,7 +55,7 @@ class EasyRouter
         $requestURI = explode('/', rtrim(urldecode($_SERVER['REQUEST_URI']), '/'));
         $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
         $scriptName = explode('/', $_SERVER['SCRIPT_NAME']);
-        for ($x = 0; $x < sizeof($requestURI); $x++) {
+        for ($x = 0; $x < sizeof($requestURI) && $x < sizeof($scriptName); $x++) {
             if (strtolower($requestURI[$x]) == strtolower($scriptName[$x])) {
                 unset($requestURI[$x]);
             }
