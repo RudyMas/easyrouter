@@ -6,7 +6,7 @@ Install the package using composer.
 composer require rudymas/router
 ```
 
-or by adding in the file composer.json:
+or by editing composer.json yourself and adding:
 ```
 "require": {
     "rudymas/router": "*"
