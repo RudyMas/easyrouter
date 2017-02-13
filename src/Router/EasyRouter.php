@@ -11,7 +11,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rudymas.be>
  * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.5.2
+ * @version     0.6.0
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -47,11 +47,18 @@ class EasyRouter
     private $routes = [];
 
     /**
+     * @var string $default
+     * The default route to be used
+     */
+    private $default = '/';
+
+    /**
      * function processURL()
      * This will process the URL and extract the parameters from it.
      */
     public function processURL()
     {
+        $defaultPath = '';
         $requestURI = explode('/', rtrim(urldecode($_SERVER['REQUEST_URI']), '/'));
         $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
         $scriptName = explode('/', $_SERVER['SCRIPT_NAME']);
@@ -59,9 +66,11 @@ class EasyRouter
         $sizeofScriptName = sizeof($scriptName);
         for ($x = 0; $x < $sizeofRequestURI && $x < $sizeofScriptName; $x++) {
             if (strtolower($requestURI[$x]) == strtolower($scriptName[$x])) {
+                $defaultPath .= '/' . $requestURI[$x];
                 unset($requestURI[$x]);
             }
         }
+        $this->default = $defaultPath . $this->default;
         $this->parameters = array_values($requestURI);
     }
 
@@ -93,6 +102,14 @@ class EasyRouter
             $this->routes[] = array('route' => $route, 'action' => $action, 'args' => $args);
             return TRUE;
         }
+    }
+
+    /**
+     * @param string $page The page to redirect to
+     */
+    public function setDefault($page)
+    {
+        $this->default = $page;
     }
 
     /**
@@ -133,7 +150,8 @@ class EasyRouter
                 }
             }
         }
-        throw new Exception('Page couldn\'t be found!', 404);
+        header('Location: ' . $this->default);
+        exit;
     }
 
     /**
