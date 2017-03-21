@@ -8,10 +8,10 @@ use Exception;
  * This class can be used to process clean URLs (http://<website>/arg1/arg2)
  * and process it according to the configured routes.
  *
- * @author      Rudy Mas <rudy.mas@rudymas.be>
- * @copyright   2016, rudymas.be. (http://www.rudymas.be/)
+ * @author      Rudy Mas <rudy.mas@rmsoft.be>
+ * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.6.0
+ * @version     0.6.1
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -41,8 +41,7 @@ class EasyRouter
      * This contains all the routes of the website
      * $routes[n]['route'] = the route to check against
      * $routes[n]['action'] = the controller to load
-     * $routes[n]['argument'] = the argument(s) which you pass to the controller
-     *                          this can be a string or an array
+     * $routes[n]['argument'] = array of argument(s) which you pass to the controller
      */
     private $routes = [];
 
@@ -90,10 +89,10 @@ class EasyRouter
      * @param string $method The method of the request (GET/PUT/POST/...)
      * @param string $route A route for the system (/blog/page/1)
      * @param string $action The action script that has to be used
-     * @param string|array $args The arguments to pass to the controller
+     * @param array $args The arguments to pass to the controller
      * @return boolean Returns FALSE if route already exists, TRUE if it is added
      */
-    public function addRoute($method, $route, $action, $args = NULL)
+    public function addRoute($method, $route, $action, $args = [])
     {
         $route = strtoupper($method) . rtrim($route, '/');
         if ($this->isRouteSet($route)) {
