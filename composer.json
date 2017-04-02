@@ -1,13 +1,14 @@
 {
   "name": "rudymas/router",
   "description": "An easy way to process clean URLs with added routing options",
+  "version": "0.6.1",
   "type": "library",
   "license": "GPL-3.0",
   "authors": [
     {
       "name": "Rudy Mas",
-      "email": "rudy.mas@rudymas.be",
-      "homepage": "http://www.rudymas.be",
+      "email": "rudy.mas@rmsoft.be",
+      "homepage": "http://www.rmsoft.be",
       "role": "Developer"
     }
   ],
