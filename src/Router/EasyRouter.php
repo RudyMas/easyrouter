@@ -11,7 +11,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.6.1
+ * @version     0.6.2
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -58,7 +58,8 @@ class EasyRouter
     public function processURL()
     {
         $defaultPath = '';
-        $requestURI = explode('/', rtrim(urldecode($_SERVER['REQUEST_URI']), '/'));
+        $basepath = explode('?', urldecode($_SERVER['REQUEST_URI']));
+        $requestURI = explode('/', rtrim($basepath[0], '/'));
         $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
         $scriptName = explode('/', $_SERVER['SCRIPT_NAME']);
         $sizeofRequestURI = sizeof($requestURI);
