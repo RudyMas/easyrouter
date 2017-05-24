@@ -1,7 +1,7 @@
 {
   "name": "rudymas/router",
   "description": "An easy way to process clean URLs with added routing options",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "type": "library",
   "license": "GPL-3.0",
   "authors": [
@@ -14,7 +14,7 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": ">= 5.4.0 || >= 7.0"
+    "php": ">= 7.0"
   },
   "autoload": {
     "psr-4": {

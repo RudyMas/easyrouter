@@ -4,14 +4,15 @@ namespace RudyMas\Router;
 use Exception;
 
 /**
- * Class EasyRouter
+ * Class EasyRouter (PHP version 7.0)
+ *
  * This class can be used to process clean URLs (http://<website>/arg1/arg2)
  * and process it according to the configured routes.
  *
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.6.5
+ * @version     0.7.0
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -91,9 +92,9 @@ class EasyRouter
      * @param string $route A route for the system (/blog/page/1)
      * @param string $action The action script that has to be used
      * @param array $args The arguments to pass to the controller
-     * @return boolean Returns FALSE if route already exists, TRUE if it is added
+     * @return bool Returns FALSE if route already exists, TRUE if it is added
      */
-    public function addRoute($method, $route, $action, $args = [])
+    public function addRoute(string $method, string $route, string $action, array $args = []): bool
     {
         $route = strtoupper($method) . rtrim($route, '/');
         if ($this->isRouteSet($route)) {
@@ -107,7 +108,7 @@ class EasyRouter
     /**
      * @param string $page The page to redirect to
      */
-    public function setDefault($page)
+    public function setDefault(string $page)
     {
         $this->default = $page;
     }
@@ -119,7 +120,7 @@ class EasyRouter
      * @throws Exception Will throw an exception when the route isn't configured (Error Code 404)
      * @return boolean Returns TRUE if page has been found
      */
-    public function execute()
+    public function execute(): bool
     {
         $this->processURL();
         $this->processBody();
@@ -159,9 +160,9 @@ class EasyRouter
      * This will test if a route already exists and returns TRUE if it is set, FALSE if it isn't set
      *
      * @param string $newRoute The new route to be tested
-     * @return boolean Returns TRUE if it is set, FALSE if it isn't set
+     * @return bool Returns TRUE if it is set, FALSE if it isn't set
      */
-    private function isRouteSet($newRoute)
+    private function isRouteSet(string $newRoute): bool
     {
         return in_array($newRoute, $this->routes);
     }
@@ -171,9 +172,9 @@ class EasyRouter
      * Checks if this part of the route is a variable
      *
      * @param string $input Part of the route to be tested
-     * @return boolean Return TRUE is a variable, FALSE if not
+     * @return bool Return TRUE is a variable, FALSE if not
      */
-    private function isItAVariable($input)
+    private function isItAVariable(string $input): bool
     {
         return preg_match("/^{(.+)}$/", $input);
     }
@@ -183,7 +184,7 @@ class EasyRouter
      *
      * @return array Returns an array of the parameters
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         return $this->parameters;
     }
@@ -198,4 +199,5 @@ class EasyRouter
         return $this->body;
     }
 }
+
 /** End of File: EasyRouter.php **/
