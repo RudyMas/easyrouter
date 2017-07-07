@@ -1,10 +1,11 @@
 <?php
+
 namespace RudyMas\Router;
 
 use Exception;
 
 /**
- * Class EasyRouter (PHP version 7.0)
+ * Class EasyRouter (PHP version 7.1)
  *
  * This class can be used to process clean URLs (http://<website>/arg1/arg2)
  * and process it according to the configured routes.
@@ -12,7 +13,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.7.1
+ * @version     0.7.2
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -57,11 +58,11 @@ class EasyRouter
      * function processURL()
      * This will process the URL and extract the parameters from it.
      */
-    public function processURL()
+    public function processURL(): void
     {
         $defaultPath = '';
-        $basepath = explode('?', urldecode($_SERVER['REQUEST_URI']));
-        $requestURI = explode('/', rtrim($basepath[0], '/'));
+        $basePath = explode('?', urldecode($_SERVER['REQUEST_URI']));
+        $requestURI = explode('/', rtrim($basePath[0], '/'));
         $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
         $scriptName = explode('/', $_SERVER['SCRIPT_NAME']);
         $sizeofRequestURI = sizeof($requestURI);
@@ -80,7 +81,7 @@ class EasyRouter
      * function processBody()
      * This will process the body of a REST request
      */
-    public function processBody()
+    public function processBody(): void
     {
         $this->body = file_get_contents('php://input');
     }
@@ -110,7 +111,7 @@ class EasyRouter
     /**
      * @param string $page The page to redirect to
      */
-    public function setDefault(string $page)
+    public function setDefault(string $page): void
     {
         $this->default = $page;
     }
@@ -127,6 +128,7 @@ class EasyRouter
         $this->processURL();
         $this->processBody();
         $variables = [];
+        $repositories = [];
         foreach ($this->routes as $value) {
             $testRoute = explode('/', $value['route']);
             if (!(count($this->parameters) == count($testRoute))) {
@@ -140,14 +142,27 @@ class EasyRouter
                     break 1;
                 }
                 if ($x == count($testRoute) - 1) {
+                    if (!empty($value['repositories'])) {
+                        foreach ($value['repositories'] as $repositoryToLoad) {
+                            $repository = '\\Repository\\' . $repositoryToLoad . 'Repository';
+                            $repositories[] = new $repository();
+                        }
+                    }
                     $function2Execute = explode(':', $value['action']);
                     if (count($function2Execute) == 2) {
                         $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
                         $controller = new $action($value['args']);
-                        $controller->{$function2Execute[1] . 'Action'}($variables, $this->body);
+
+                        $arguments = [];
+                        foreach ($repositories as $repo) {
+                            $arguments[] = $repo;
+                        }
+                        $arguments[] = $variables;
+                        $arguments[] = $this->body;
+                        call_user_func_array([$controller, $function2Execute[1] . 'Action'], $arguments);
                     } else {
                         $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
-                        new $action($value['args'], $variables, $this->body);
+                        new $action($value['args'], $repositories, $variables, $this->body);
                     }
                     return TRUE;
                 }
