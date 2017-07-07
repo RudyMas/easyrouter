@@ -12,7 +12,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.7.0
+ * @version     0.7.1
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -42,7 +42,8 @@ class EasyRouter
      * This contains all the routes of the website
      * $routes[n]['route'] = the route to check against
      * $routes[n]['action'] = the controller to load
-     * $routes[n]['argument'] = array of argument(s) which you pass to the controller
+     * $routes[n]['args'] = array of argument(s) which you pass to the controller
+     * $routes[n]['repositories'] = array of repositories which you pass to the action method
      */
     private $routes = [];
 
@@ -92,15 +93,16 @@ class EasyRouter
      * @param string $route A route for the system (/blog/page/1)
      * @param string $action The action script that has to be used
      * @param array $args The arguments to pass to the controller
+     * @param array $repositories The repositories to pass to the action method
      * @return bool Returns FALSE if route already exists, TRUE if it is added
      */
-    public function addRoute(string $method, string $route, string $action, array $args = []): bool
+    public function addRoute(string $method, string $route, string $action, array $args = [], array $repositories = []): bool
     {
         $route = strtoupper($method) . rtrim($route, '/');
         if ($this->isRouteSet($route)) {
             return FALSE;
         } else {
-            $this->routes[] = array('route' => $route, 'action' => $action, 'args' => $args);
+            $this->routes[] = array('route' => $route, 'action' => $action, 'args' => $args, 'repositories' => $repositories);
             return TRUE;
         }
     }
@@ -145,7 +147,7 @@ class EasyRouter
                         $controller->{$function2Execute[1] . 'Action'}($variables, $this->body);
                     } else {
                         $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
-                        new $action($variables, $this->body, $value['args']);
+                        new $action($value['args'], $variables, $this->body);
                     }
                     return TRUE;
                 }
