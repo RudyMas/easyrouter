@@ -3,6 +3,7 @@
 namespace RudyMas\Router;
 
 use Exception;
+use RudyMas\PDOExt\DBconnect;
 
 /**
  * Class EasyRouter (PHP version 7.1)
@@ -13,7 +14,7 @@ use Exception;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.7.2
+ * @version     0.7.4
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -53,6 +54,21 @@ class EasyRouter
      * The default route to be used
      */
     private $default = '/';
+
+    /**
+     * @var string $db
+     * Needed for injecting the database connection into the repository
+     */
+    private $db;
+
+    /**
+     * EasyRouter constructor.
+     * @param DBconnect|null $db
+     */
+    public function __construct(DBconnect $db = null)
+    {
+        $this->db = $db;
+    }
 
     /**
      * function processURL()
@@ -128,7 +144,6 @@ class EasyRouter
         $this->processURL();
         $this->processBody();
         $variables = [];
-        $repositories = [];
         foreach ($this->routes as $value) {
             $testRoute = explode('/', $value['route']);
             if (!(count($this->parameters) == count($testRoute))) {
@@ -142,27 +157,23 @@ class EasyRouter
                     break 1;
                 }
                 if ($x == count($testRoute) - 1) {
-                    if (!empty($value['repositories'])) {
-                        foreach ($value['repositories'] as $repositoryToLoad) {
-                            $repository = '\\Repository\\' . $repositoryToLoad . 'Repository';
-                            $repositories[] = new $repository();
-                        }
-                    }
                     $function2Execute = explode(':', $value['action']);
                     if (count($function2Execute) == 2) {
                         $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
                         $controller = new $action($value['args']);
-
                         $arguments = [];
-                        foreach ($repositories as $repo) {
-                            $arguments[] = $repo;
+                        if (!empty($value['repositories'])) {
+                            foreach ($value['repositories'] as $repositoryToLoad) {
+                                $repository = '\\Repository\\' . $repositoryToLoad . 'Repository';
+                                $arguments[] = new $repository(null, $this->db);
+                            }
                         }
                         $arguments[] = $variables;
                         $arguments[] = $this->body;
                         call_user_func_array([$controller, $function2Execute[1] . 'Action'], $arguments);
                     } else {
                         $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
-                        new $action($value['args'], $repositories, $variables, $this->body);
+                        new $action($value['args'], $variables, $this->body);
                     }
                     return TRUE;
                 }

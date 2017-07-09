@@ -14,7 +14,8 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": ">= 7.1"
+    "php": ">= 7.1",
+    "rudymas/router": "*"
   },
   "autoload": {
     "psr-4": {
