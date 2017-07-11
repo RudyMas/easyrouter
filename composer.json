@@ -1,7 +1,7 @@
 {
   "name": "rudymas/router",
   "description": "An easy way to process clean URLs with added routing options",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "type": "library",
   "license": "GPL-3.0",
   "authors": [

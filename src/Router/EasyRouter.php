@@ -14,7 +14,7 @@ use RudyMas\PDOExt\DBconnect;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.7.6
+ * @version     0.7.7
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -152,7 +152,7 @@ class EasyRouter
             for ($x = 0; $x < count($testRoute); $x++) {
                 if ($this->isItAVariable($testRoute[$x])) {
                     $key = trim($testRoute[$x], '{}');
-                    $variables[$key] = $this->parameters[$x];
+                    $variables[$key] = str_replace('__', '/', $this->parameters[$x]);
                 } elseif (strtolower($testRoute[$x]) != strtolower($this->parameters[$x])) {
                     break 1;
                 }
