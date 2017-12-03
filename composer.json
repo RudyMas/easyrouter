@@ -15,7 +15,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">= 7.1",
-    "rudymas/router": "*"
+    "rudymas/pdo-ext": "*"
   },
   "autoload": {
     "psr-4": {
