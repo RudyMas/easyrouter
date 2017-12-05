@@ -15,7 +15,7 @@ use RudyMas\PDOExt\DBconnect;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.8.0
+ * @version     0.8.1
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -253,7 +253,7 @@ class EasyRouter
                 for ($x = 1; $x < count($parameters); $x++) {
                     $path .= '/' . $parameters[$x];
                 }
-                header('Location: ' . $this->defaultMobileApp . $path);
+                header('Location: ' . $this->defaultMobileApp . '/#' . $path);
                 break;
             case 'auto':
                 if ($this->detect->isMobile()) {
