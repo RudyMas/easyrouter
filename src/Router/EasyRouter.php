@@ -3,6 +3,7 @@
 namespace RudyMas\Router;
 
 use Exception;
+use Mobile_Detect;
 use RudyMas\PDOExt\DBconnect;
 
 /**
@@ -14,7 +15,7 @@ use RudyMas\PDOExt\DBconnect;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.7.7
+ * @version     0.8.0
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -46,6 +47,11 @@ class EasyRouter
      * $routes[n]['action'] = the controller to load
      * $routes[n]['args'] = array of argument(s) which you pass to the controller
      * $routes[n]['repositories'] = array of repositories which you pass to the action method
+     * $routes[n]['device'] = when mobile detection is active, this will decide how website calls will be handled
+     *                          auto = detects device an redirects according parameters set (DEFAULT)
+     *                          mobile = always redirect to mobile app
+     *                          web = always redirect to website (PHP)
+     *                          api = API will aways be handled by the PHP API
      */
     private $routes = [];
 
@@ -56,10 +62,28 @@ class EasyRouter
     private $default = '/';
 
     /**
+     * @var string
+     * The default path to the mobile app
+     * Default 'http://yourwebsite.com/m' (Also depending on the BASE_URL)
+     */
+    private $defaultMobileApp = '/m';
+
+    /**
+     * @var string
+     * Is mobile detection active or not
+     */
+    private $mobileDetection = false;
+
+    /**
      * @var string $db
      * Needed for injecting the database connection into the repository
      */
     private $db;
+
+    /**
+     * @var Mobile_Detect
+     */
+    private $detect;
 
     /**
      * EasyRouter constructor.
@@ -68,38 +92,7 @@ class EasyRouter
     public function __construct(DBconnect $db = null)
     {
         $this->db = $db;
-    }
-
-    /**
-     * function processURL()
-     * This will process the URL and extract the parameters from it.
-     */
-    public function processURL(): void
-    {
-        $defaultPath = '';
-        $basePath = explode('?', urldecode($_SERVER['REQUEST_URI']));
-        $requestURI = explode('/', rtrim($basePath[0], '/'));
-        $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
-        $scriptName = explode('/', $_SERVER['SCRIPT_NAME']);
-        $sizeofRequestURI = sizeof($requestURI);
-        $sizeofScriptName = sizeof($scriptName);
-        for ($x = 0; $x < $sizeofRequestURI && $x < $sizeofScriptName; $x++) {
-            if (strtolower($requestURI[$x]) == strtolower($scriptName[$x])) {
-                $defaultPath .= '/' . $requestURI[$x];
-                unset($requestURI[$x]);
-            }
-        }
-        $this->default = $defaultPath . $this->default;
-        $this->parameters = array_values($requestURI);
-    }
-
-    /**
-     * function processBody()
-     * This will process the body of a REST request
-     */
-    public function processBody(): void
-    {
-        $this->body = file_get_contents('php://input');
+        $this->detect = new Mobile_Detect();
     }
 
     /**
@@ -111,15 +104,25 @@ class EasyRouter
      * @param string $action The action script that has to be used
      * @param array $args The arguments to pass to the controller
      * @param array $repositories The repositories to pass to the action method
+     * @param string $device Route is for which device
+     *                  auto = auto detect and redirect if needed
+     *                  web / api = always use the PHP version
+     *                  mobile = always redirect to the mobile app (forward URI)
      * @return bool Returns FALSE if route already exists, TRUE if it is added
      */
-    public function addRoute(string $method, string $route, string $action, array $args = [], array $repositories = []): bool
+    public function addRoute(string $method,
+                             string $route,
+                             string $action,
+                             array $args = [],
+                             array $repositories = [],
+                             string $device = 'auto'): bool
     {
         $route = strtoupper($method) . rtrim($route, '/');
         if ($this->isRouteSet($route)) {
             return FALSE;
         } else {
-            $this->routes[] = array('route' => $route, 'action' => $action, 'args' => $args, 'repositories' => $repositories);
+            $this->routes[] = array('route' => $route, 'action' => $action, 'args' => $args,
+                'repositories' => $repositories, 'device' => $device);
             return TRUE;
         }
     }
@@ -130,6 +133,22 @@ class EasyRouter
     public function setDefault(string $page): void
     {
         $this->default = $page;
+    }
+
+    /**
+     * @param string $linkMobileApp
+     */
+    public function setDefaultMobileApp(string $linkMobileApp): void
+    {
+        $this->defaultMobileApp = $linkMobileApp;
+    }
+
+    /**
+     * @param bool $status
+     */
+    public function setMobileDetection(bool $status): void
+    {
+        $this->mobileDetection = strtolower($status);
     }
 
     /**
@@ -157,6 +176,7 @@ class EasyRouter
                     break 1;
                 }
                 if ($x == count($testRoute) - 1) {
+                    $this->processMobile($value, $this->parameters);
                     $function2Execute = explode(':', $value['action']);
                     if (count($function2Execute) == 2) {
                         $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
@@ -184,6 +204,67 @@ class EasyRouter
     }
 
     /**
+     * function processURL()
+     * This will process the URL and extract the parameters from it.
+     */
+    private function processURL(): void
+    {
+        $defaultPath = '';
+        $basePath = explode('?', urldecode($_SERVER['REQUEST_URI']));
+        $requestURI = explode('/', rtrim($basePath[0], '/'));
+        $requestURI[0] = strtoupper($_SERVER['REQUEST_METHOD']);
+        $scriptName = explode('/', $_SERVER['SCRIPT_NAME']);
+        $sizeofRequestURI = sizeof($requestURI);
+        $sizeofScriptName = sizeof($scriptName);
+        for ($x = 0; $x < $sizeofRequestURI && $x < $sizeofScriptName; $x++) {
+            if (strtolower($requestURI[$x]) == strtolower($scriptName[$x])) {
+                $defaultPath .= '/' . $requestURI[$x];
+                unset($requestURI[$x]);
+            }
+        }
+        $this->default = $defaultPath . $this->default;
+        if (!$this->isFullUrl($this->defaultMobileApp)) {
+            $this->defaultMobileApp = $defaultPath . $this->defaultMobileApp;
+        }
+        $this->parameters = array_values($requestURI);
+    }
+
+    /**
+     * function processBody()
+     * This will process the body of a REST request
+     */
+    private function processBody(): void
+    {
+        $this->body = file_get_contents('php://input');
+    }
+
+    /**
+     * function processMobile()
+     * This will check if the user is using a mobile device and if needed, redirect him to the mobile app
+     *
+     * @param array $value
+     * @param array $parameters
+     */
+    private function processMobile(array $value, array $parameters): void
+    {
+        switch ($value['device']) {
+            case 'mobile':
+                $path = '';
+                for ($x = 1; $x < count($parameters); $x++) {
+                    $path .= '/' . $parameters[$x];
+                }
+                header('Location: ' . $this->defaultMobileApp . $path);
+                break;
+            case 'auto':
+                if ($this->detect->isMobile()) {
+                    header('Location: ' . $this->defaultMobileApp);
+                }
+                break;
+            default:
+        }
+    }
+
+    /**
      * function isRouteSet($route)
      * This will test if a route already exists and returns TRUE if it is set, FALSE if it isn't set
      *
@@ -205,6 +286,18 @@ class EasyRouter
     private function isItAVariable(string $input): bool
     {
         return preg_match("/^{(.+)}$/", $input);
+    }
+
+    /**
+     * function isFullUrl($input)
+     * Checks if it is a full URL or not
+     *
+     * @param string $input
+     * @return bool
+     */
+    private function isFullUrl(string $input): bool
+    {
+        return preg_match("/^http[s]?:\/\//", $input);
     }
 
     /**
