@@ -253,9 +253,7 @@ class EasyRouter
                 for ($x = 1; $x < count($parameters); $x++) {
                     $path .= '/' . $parameters[$x];
                 }
-                header('Location: ' . $this->defaultMobileApp);
-                // Todo: Edit htaccess so I can use the $path as well
-                // header('Location: ' . $this->defaultMobileApp . $path);
+                header('Location: ' . $this->defaultMobileApp . $path);
                 break;
             case 'auto':
                 if ($this->detect->isMobile()) {
