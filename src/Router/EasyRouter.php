@@ -15,7 +15,7 @@ use RudyMas\PDOExt\DBconnect;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.8.2
+ * @version     0.8.3
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -148,7 +148,7 @@ class EasyRouter
      */
     public function setMobileDetection(bool $status): void
     {
-        $this->mobileDetection = strtolower($status);
+        $this->mobileDetection = $status;
     }
 
     /**
@@ -247,20 +247,22 @@ class EasyRouter
      */
     private function processMobile(array $value, array $parameters): void
     {
-        switch ($value['device']) {
-            case 'mobile':
-                $path = '';
-                for ($x = 1; $x < count($parameters); $x++) {
-                    $path .= '/' . $parameters[$x];
-                }
-                header('Location: ' . $this->defaultMobileApp . $path);
-                break;
-            case 'auto':
-                if ($this->detect->isMobile()) {
-                    header('Location: ' . $this->defaultMobileApp);
-                }
-                break;
-            default:
+        if ($this->mobileDetection) {
+            switch ($value['device']) {
+                case 'mobile':
+                    $path = '';
+                    for ($x = 1; $x < count($parameters); $x++) {
+                        $path .= '/' . $parameters[$x];
+                    }
+                    header('Location: ' . $this->defaultMobileApp . $path);
+                    break;
+                case 'auto':
+                    if ($this->detect->isMobile()) {
+                        header('Location: ' . $this->defaultMobileApp);
+                    }
+                    break;
+                default:
+            }
         }
     }
 
