@@ -15,7 +15,7 @@ use RudyMas\PDOExt\DBconnect;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.8.3
+ * @version     0.8.4
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -161,6 +161,9 @@ class EasyRouter
     public function execute(): bool
     {
         $this->processURL();
+        if ($this->parameters['0'] == 'OPTIONS') {
+            $this->respondOnOptionsRequest();
+        }
         $this->processBody();
         $variables = [];
         foreach ($this->routes as $value) {
@@ -320,6 +323,13 @@ class EasyRouter
     public function getBody()
     {
         return $this->body;
+    }
+
+    private function respondOnOptionsRequest()
+    {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: *');
+
     }
 }
 
