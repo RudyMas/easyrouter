@@ -13,9 +13,9 @@ use RudyMas\PDOExt\DBconnect;
  * and process it according to the configured routes.
  *
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
- * @copyright   2016-2017, rmsoft.be. (http://www.rmsoft.be/)
+ * @copyright   2016-2018, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.8.5
+ * @version     0.9.0
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -178,6 +178,7 @@ class EasyRouter
                 } elseif (strtolower($testRoute[$x]) != strtolower($this->parameters[$x])) {
                     break 1;
                 }
+                $variables['headers'] = apache_request_headers();
                 if ($x == count($testRoute) - 1) {
                     $this->processMobile($value, $this->parameters);
                     $function2Execute = explode(':', $value['action']);
