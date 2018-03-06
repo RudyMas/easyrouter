@@ -1,7 +1,7 @@
 {
   "name": "rudymas/router",
   "description": "An easy way to process clean URLs with added routing options",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "library",
   "license": "GPL-3.0",
   "authors": [
@@ -19,8 +19,8 @@
     "mobiledetect/mobiledetectlib": "^2.8"
   },
   "autoload": {
-    "psr-4": {
-      "RudyMas\\Router\\": "src/"
-    }
+    "classmap": [
+      "src/"
+    ]
   }
 }
