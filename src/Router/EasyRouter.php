@@ -15,7 +15,7 @@ use RudyMas\PDOExt\DBconnect;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2018, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     0.9.0
+ * @version     1.0.0
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -183,12 +183,12 @@ class EasyRouter
                     $this->processMobile($value, $this->parameters);
                     $function2Execute = explode(':', $value['action']);
                     if (count($function2Execute) == 2) {
-                        $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
+                        $action = '\\Controllers\\' . $function2Execute[0] . 'Controller';
                         $controller = new $action($value['args']);
                         $arguments = [];
                         if (!empty($value['repositories'])) {
                             foreach ($value['repositories'] as $repositoryToLoad) {
-                                $repository = '\\Repository\\' . $repositoryToLoad . 'Repository';
+                                $repository = '\\Repositories\\' . $repositoryToLoad . 'Repository';
                                 $arguments[] = new $repository($this->db, null);
                             }
                         }
@@ -196,7 +196,7 @@ class EasyRouter
                         $arguments[] = $this->body;
                         call_user_func_array([$controller, $function2Execute[1] . 'Action'], $arguments);
                     } else {
-                        $action = '\\Controller\\' . $function2Execute[0] . 'Controller';
+                        $action = '\\Controllers\\' . $function2Execute[0] . 'Controller';
                         new $action($value['args'], $variables, $this->body);
                     }
                     return TRUE;
