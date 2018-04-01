@@ -2,9 +2,9 @@
 
 namespace RudyMas\Router;
 
+use EasyMVC\Core\Core;
 use Exception;
 use Mobile_Detect;
-use RudyMas\PDOExt\DBconnect;
 
 /**
  * Class EasyRouter (PHP version 7.1)
@@ -15,7 +15,7 @@ use RudyMas\PDOExt\DBconnect;
  * @author      Rudy Mas <rudy.mas@rmsoft.be>
  * @copyright   2016-2018, rmsoft.be. (http://www.rmsoft.be/)
  * @license     https://opensource.org/licenses/GPL-3.0 GNU General Public License, version 3 (GPL-3.0)
- * @version     1.0.1
+ * @version     1.1.0
  * @package     RudyMas\Router
  */
 class EasyRouter
@@ -75,10 +75,10 @@ class EasyRouter
     private $mobileDetection = false;
 
     /**
-     * @var string $db
-     * Needed for injecting the database connection into the repository
+     * @var string $Core
+     * Needed for injecting the EasyMVC Core into the framework
      */
-    private $db;
+    private $Core;
 
     /**
      * @var Mobile_Detect
@@ -87,11 +87,11 @@ class EasyRouter
 
     /**
      * EasyRouter constructor.
-     * @param DBconnect|null $db
+     * @param Core|null $core
      */
-    public function __construct(DBconnect $db = null)
+    public function __construct(Core $core = null)
     {
-        $this->db = $db;
+        $this->Core = $core;
         $this->detect = new Mobile_Detect();
     }
 
@@ -184,12 +184,12 @@ class EasyRouter
                     $function2Execute = explode(':', $value['action']);
                     if (count($function2Execute) == 2) {
                         $action = '\\Controllers\\' . $function2Execute[0] . 'Controller';
-                        $controller = new $action($value['args']);
+                        $controller = new $action($this->Core, $value['args']);
                         $arguments = [];
                         if (!empty($value['repositories'])) {
                             foreach ($value['repositories'] as $repositoryToLoad) {
                                 $repository = '\\Repositories\\' . $repositoryToLoad . 'Repository';
-                                $arguments[] = new $repository($this->db, null);
+                                $arguments[] = new $repository($this->Core->CoreDB['DBconnect'], null);
                             }
                         }
                         $arguments[] = $variables;
@@ -197,7 +197,7 @@ class EasyRouter
                         call_user_func_array([$controller, $function2Execute[1] . 'Action'], $arguments);
                     } else {
                         $action = '\\Controllers\\' . $function2Execute[0] . 'Controller';
-                        new $action($value['args'], $variables, $this->body);
+                        new $action($this->Core, $value['args'], $variables, $this->body);
                     }
                     return TRUE;
                 }

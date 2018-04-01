@@ -15,7 +15,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">= 7.1",
-    "rudymas/pdo-ext": "*",
+    "easymvc/core": "*",
     "mobiledetect/mobiledetectlib": "^2.8"
   },
   "autoload": {
