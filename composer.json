@@ -1,7 +1,6 @@
 {
   "name": "rudymas/router",
   "description": "An easy way to process clean URLs with added routing options",
-  "version": "1.1.0.0",
   "type": "library",
   "license": "GPL-3.0",
   "authors": [
@@ -12,11 +11,11 @@
       "role": "Developer"
     }
   ],
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "require": {
     "php": ">= 7.1",
-    "easymvc/core": "*",
-    "mobiledetect/mobiledetectlib": "^2.8"
+    "mobiledetect/mobiledetectlib": "^2.8",
+    "rudymas/pdo-ext": "^5.3"
   },
   "autoload": {
     "classmap": [
